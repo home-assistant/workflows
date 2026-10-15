@@ -1,0 +1,18 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
+
+  "enabledManagers": ["github-actions"],
+
+  "semanticCommits": "disabled",
+  "labels": ["dependencies", "github_actions"],
+
+  "packageRules": [
+    {
+      "description": "Leave runner labels and action version inputs alone",
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["github-runner", "uses-with"],
+      "enabled": false
+    }
+  ]
+}

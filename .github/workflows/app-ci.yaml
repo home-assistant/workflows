@@ -1,0 +1,257 @@
+name: App CI
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: App directory, detected from the only config.yaml one level deep if empty
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  information:
+    name: Gather app information
+    runs-on: ubuntu-latest
+    outputs:
+      architectures: ${{ steps.info.outputs.architectures }}
+      build_matrix: ${{ steps.matrix.outputs.matrix }}
+      description: ${{ steps.normalize.outputs.description }}
+      image_name: ${{ steps.normalize.outputs.image_name }}
+      name: ${{ steps.normalize.outputs.name }}
+      registry_prefix: ${{ steps.normalize.outputs.registry_prefix }}
+      target: ${{ steps.target.outputs.target }}
+      url: ${{ steps.normalize.outputs.url }}
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Find app directory
+        id: target
+        env:
+          INPUT_PATH: ${{ inputs.path }}
+        run: |
+          target="${INPUT_PATH%/}"
+          if [[ -z "${target}" ]]; then
+            mapfile -t targets < <(find . -mindepth 2 -maxdepth 2 -name config.yaml -printf '%h\n')
+            if [[ ${#targets[@]} -ne 1 ]]; then
+              echo "::error::Expected exactly one app directory, found: ${targets[*]}"
+              exit 1
+            fi
+            target="${targets[0]#./}"
+          fi
+          echo "target=${target}" >> "$GITHUB_OUTPUT"
+
+      - name: Get app information
+        id: info
+        uses: home-assistant/actions/helpers/info@cd6f3635a740c84d8a14f6121a90068b8ece6bf6 # master
+        with:
+          path: ./${{ steps.target.outputs.target }}
+
+      - name: Normalize app information
+        id: normalize
+        env:
+          IMAGE: ${{ fromJSON(steps.info.outputs.image) }}
+          NAME: ${{ fromJSON(steps.info.outputs.name) }}
+          DESCRIPTION: ${{ fromJSON(steps.info.outputs.description) }}
+          URL: ${{ fromJSON(steps.info.outputs.url) }}
+        run: |
+          if [[ -z "${IMAGE}" || "${IMAGE}" == *"{arch}"* ]]; then
+            echo "::error::Config option 'image' must be set to a generic image name without '{arch}'"
+            exit 1
+          fi
+          {
+            echo "image_name=${IMAGE##*/}"
+            echo "registry_prefix=${IMAGE%/*}"
+            echo "name=${NAME}"
+            echo "description=${DESCRIPTION//$'\n'/ }"
+            echo "url=${URL}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Prepare build matrix
+        id: matrix
+        uses: home-assistant/builder/actions/prepare-multi-arch-matrix@7412f0023ea9b6e58e8bb5059f1660f51376f49a # 2026.09.0
+        with:
+          architectures: ${{ steps.info.outputs.architectures }}
+          image-name: ${{ steps.normalize.outputs.image_name }}
+          registry-prefix: ${{ steps.normalize.outputs.registry_prefix }}
+
+  lint-app:
+    name: Lint app
+    needs: information
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run app linter
+        uses: frenck/action-app-linter@b9cfd1bc62ba60d2c4fc96317b5f7ada5923f4a7 # v2.21.1
+        with:
+          path: ./${{ needs.information.outputs.target }}
+
+  lint-hadolint:
+    name: Hadolint
+    needs: information
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run Hadolint
+        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
+        with:
+          dockerfile: ./${{ needs.information.outputs.target }}/Dockerfile
+
+  lint-json:
+    name: JSON Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run JQ
+        run: |
+          shopt -s globstar nullglob
+          for file in **/*.json; do
+            if ! jq '.' "$file" > /dev/null 2>&1; then
+              echo "::error file=${file}::Invalid JSON in ${file}"
+              jq '.' "$file"
+              exit 1
+            fi
+          done
+
+  lint-shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # 2.0.0
+        env:
+          SHELLCHECK_OPTS: -e SC1008 -s bash -x
+        with:
+          # Names of scripts with custom shebangs that the action would not
+          # discover on its own:
+          additional_files: >-
+            check_certificate_renewal
+            cpcd-config-up
+            discovery
+            finish
+            healthcheck
+            lock-tables-for-backup
+            matter-server-discovery
+            reboot
+            run
+            shutdown
+            universal-silabs-flasher-up
+            unlock-tables-for-backup
+            vlc-discovery
+
+  lint-yamllint:
+    name: YAMLLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run YAMLLint
+        uses: frenck/action-yamllint@34b4bbcaeabedcfefad6adea8c5bbc42af0e2d47 # v1.5.0
+
+  lint-prettier:
+    name: Prettier
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run Prettier
+        run: npx --yes prettier@3.9.10 --check "**/*.{json,js,md,yaml}"
+
+  lint-zizmor:
+    name: zizmor
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Dependency review
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+
+  build:
+    name: Build ${{ matrix.arch }} image
+    needs:
+      - information
+      - lint-app
+      - lint-hadolint
+      - lint-json
+      - lint-prettier
+      - lint-shellcheck
+      - lint-yamllint
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.information.outputs.build_matrix) }}
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build image
+        uses: home-assistant/builder/actions/build-image@7412f0023ea9b6e58e8bb5059f1660f51376f49a # 2026.09.0
+        with:
+          arch: ${{ matrix.arch }}
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          context: ./${{ needs.information.outputs.target }}
+          cache-image-tag: dev
+          cosign: "false"
+          image: ${{ matrix.image }}
+          image-tags: dev
+          labels: |
+            io.hass.type=app
+            io.hass.name=${{ needs.information.outputs.name }}
+            io.hass.description=${{ needs.information.outputs.description }}
+            ${{ needs.information.outputs.url && format('io.hass.url={0}', needs.information.outputs.url) || '' }}
+          push: "false"
+          version: dev
