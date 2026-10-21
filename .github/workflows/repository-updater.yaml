@@ -1,0 +1,25 @@
+name: Repository updater
+
+on:
+  workflow_call:
+    secrets:
+      UPDATER_TOKEN:
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: queue
+
+jobs:
+  publish:
+    name: Publish app update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Repository Updater
+        uses: hassio-addons/repository-updater@88408cfe4468560e649cb9c227431a696c9298ea # v2.0.1
+        with:
+          app: ${{ github.event.client_payload.app }}
+          repository: ${{ github.repository }}
+          token: ${{ secrets.UPDATER_TOKEN }}

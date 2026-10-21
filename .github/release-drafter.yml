@@ -1,0 +1,21 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+categories:
+  - title: Dependencies
+    labels:
+      - dependencies
+    collapse-after: 0
+version-resolver:
+  major:
+    labels:
+      - breaking-change
+  minor:
+    labels:
+      - new-feature
+      - enhancement
+  default: patch
