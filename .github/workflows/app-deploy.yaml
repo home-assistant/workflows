@@ -32,7 +32,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-deploy
+  group: ${{ github.workflow }}-deploy-${{ github.event_name == 'release' && 'release' || 'edge' }}
 
 env:
   # Any workflow in this repository matches this identity, so pair it with a check of the calling repository

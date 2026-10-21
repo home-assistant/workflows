@@ -16,36 +16,7 @@ jobs:
       contents: write
       pull-requests: read
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Find Next Version
-        id: version
-        run: |
-          declare -i newpost
-          latest=$(git describe --tags --abbrev=0 2>/dev/null || true)
-          latestpre=$(echo "$latest" | awk '{split($0,a,"."); print a[1] "." a[2]}')
-          datepre=$(date --utc '+%Y.%m')
-
-
-          if [[ "$latestpre" == "$datepre" ]]; then
-              latestpost=$(echo "$latest" | awk '{split($0,a,"."); print a[3]}')
-              newpost=$latestpost+1
-          else
-              newpost=0
-          fi
-
-          echo Current version:    $latest
-          echo New target version: $datepre.$newpost
-          echo "version=$datepre.$newpost" >> "$GITHUB_OUTPUT"
-
       - name: Run Release Drafter
         uses: release-drafter/release-drafter@978bb0b30c5ee8cdd332ced253758157150d43f0 # v7.10.0
-        with:
-          tag: ${{ steps.version.outputs.version }}
-          name: ${{ steps.version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

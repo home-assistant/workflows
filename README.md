@@ -63,7 +63,7 @@ jobs:
     uses: home-assistant/workflows/.github/workflows/app-release-drafter.yaml@[version]
 ```
 
-The separate `release-drafter.yaml` workflow handles this repository's own date-based releases.
+The separate `release-drafter.yaml` workflow drafts this repository's own releases, tagged `v<major>.<minor>.<patch>`.
 
 [`repository-updater.yaml`](.github/workflows/repository-updater.yaml) updates an app index using `hassio-addons/repository-updater` and the index's `.apps.yml`:
 
