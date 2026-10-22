@@ -4,28 +4,28 @@ on:
   workflow_call:
     inputs:
       path:
-        description: App directory, detected from the only config.yaml one level deep if empty
+        description: App directory. If empty, the only subdirectory with a config.yaml is used; the workflow fails if there is not exactly one.
         required: false
         type: string
         default: ""
       repository:
-        description: Name of the stable app index repository in the same organization
+        description: Name of the stable app store repository in the same organization
         required: false
         type: string
         default: apps
       repository_beta:
-        description: Name of the beta catalog repository, beta releases are not announced if empty
+        description: Name of the beta app store repository in the same organization, beta releases are not announced if empty
         required: false
         type: string
         default: ""
       repository_edge:
-        description: Name of the edge catalog repository, edge builds are not announced if empty
+        description: Name of the edge app store repository in the same organization, edge builds are not announced if empty
         required: false
         type: string
         default: ""
     secrets:
       DISPATCH_TOKEN:
-        description: Token allowed to send repository_dispatch events to the catalog repositories
+        description: Token allowed to send repository_dispatch events to the app store repositories
         required: true
 
 permissions:

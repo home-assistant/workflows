@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       path:
-        description: App directory, detected from the only config.yaml one level deep if empty
+        description: App directory. If empty, the only subdirectory with a config.yaml is used; the workflow fails if there is not exactly one.
         required: false
         type: string
         default: ""
