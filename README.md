@@ -21,7 +21,7 @@ Each `app-deploy.yaml` run publishes container images and notifies app store rep
 - A GitHub release publishes images tagged with the version and `stable`.
   It then sends an `update` dispatch event to the app store repository, `home-assistant/apps` by default.
 - `repository_edge` and `repository_beta` name optional edge and beta app store repositories.
-  Set `repository_edge: apps-dev` to notify the development app store; its updater channel and GitHub environment remain `edge`, while the image tag is `dev`.
+  Set `repository_edge: apps-dev` to notify the development app store; its updater channel remains `edge`, while the GitHub environment and the image tag are `dev`.
 
 Rerunning deployment jobs rebuilds, pushes and signs the images again, even when the container image tags already exist.
 This allows recovery from a signing failure after an image was pushed.

@@ -241,7 +241,7 @@ jobs:
       - information
       - manifest
     environment:
-      name: edge
+      name: dev
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch repository updater update signal
