@@ -53,7 +53,7 @@ jobs:
   information:
     name: Gather app information
     # Restrict callers because any public repository can call this workflow
-    if: (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice')
+    if: (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice-support')
     runs-on: ubuntu-latest
     outputs:
       architectures: ${{ steps.info.outputs.architectures }}
@@ -161,7 +161,7 @@ jobs:
   build:
     name: Build ${{ matrix.arch }} image
     needs: information
-    if: (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice')
+    if: (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice-support')
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
@@ -203,7 +203,7 @@ jobs:
     needs:
       - information
       - build
-    if: (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice')
+    if: (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice-support')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -246,7 +246,7 @@ jobs:
 
   publish-edge:
     name: Publish to edge repository
-    if: (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice') && inputs.notify && needs.information.outputs.environment == 'edge' && inputs.repository_edge != ''
+    if: (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice-support') && inputs.notify && needs.information.outputs.environment == 'edge' && inputs.repository_edge != ''
     needs:
       - information
       - manifest
@@ -271,7 +271,7 @@ jobs:
   publish-beta:
     name: Publish to beta repository
     if: |
-      (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice') && inputs.notify && inputs.repository_beta != '' && (
+      (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice-support') && inputs.notify && inputs.repository_beta != '' && (
         needs.information.outputs.environment == 'beta' ||
         needs.information.outputs.environment == 'stable'
       )
@@ -298,7 +298,7 @@ jobs:
 
   publish-stable:
     name: Publish to stable repository
-    if: (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice') && inputs.notify && needs.information.outputs.environment == 'stable'
+    if: (github.repository_owner == 'home-assistant' || github.repository == 'OHF-Voice/app-voice-support') && inputs.notify && needs.information.outputs.environment == 'stable'
     needs:
       - information
       - manifest
