@@ -11,7 +11,7 @@ The official Home Assistant apps, one repository per app, build and publish thei
 
 They build with the actions from [home-assistant/builder](https://github.com/home-assistant/builder), pinned to a builder release.
 
-`app-deploy.yaml` runs for repositories of the `home-assistant` organization and for `OHF-Voice/app-voice`.
+`app-deploy.yaml` runs for repositories of the `home-assistant` organization and for `OHF-Voice/app-voice-support`.
 Other projects can use the builder actions in their own workflows.
 
 Each `app-deploy.yaml` run publishes container images and notifies app store repositories:
