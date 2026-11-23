@@ -14,7 +14,7 @@ workflows:
         - 'home-assistant/actions@9e9565e68f5a70d874202871f4c4064d23814235'
         - 'home-assistant/builder@2026.09.0'
         - 'ludeeus/action-shellcheck@2.0.0'
-        - 'zizmorcore/zizmor-action@v0.8.1'
+        - 'zizmorcore/zizmor-action@v0.9.0'
     '.github/workflows/app-deploy.yaml':
         - 'actions/checkout@v7.0.1'
         - 'home-assistant/actions@9e9565e68f5a70d874202871f4c4064d23814235'
@@ -25,7 +25,7 @@ workflows:
         - 'release-drafter/release-drafter@v7.11.0'
     '.github/workflows/lint.yaml':
         - 'actions/checkout@v7.0.1'
-        - 'zizmorcore/zizmor-action@v0.8.1'
+        - 'zizmorcore/zizmor-action@v0.9.0'
     '.github/workflows/release-drafter.yaml':
         - 'release-drafter/release-drafter@v7.11.0'
     '.github/workflows/repository-updater.yaml':
@@ -71,9 +71,9 @@ dependencies:
         commit: 'sha1-34b4bbcaeabedcfefad6adea8c5bbc42af0e2d47'
         owner_id: 195327
         repo_id: 329023533
-    'github/codeql-action@9b3254085494b55a0f7c4c2b3d2d52cc712ce370':
-        ref: 'v4.39.1'
-        commit: 'sha1-9b3254085494b55a0f7c4c2b3d2d52cc712ce370'
+    'github/codeql-action@33d7b85da1a04171e211befe2c739303b9a4c066':
+        ref: 'v4.39.3'
+        commit: 'sha1-33d7b85da1a04171e211befe2c739303b9a4c066'
         owner_id: 9919
         repo_id: 259445878
     'hadolint/hadolint-action@v3.5.0':
@@ -134,10 +134,10 @@ dependencies:
         commit: 'sha1-756fe2d284c7292c4e9b62c8a28f1e5629c59532'
         owner_id: 71096353
         repo_id: 351211695
-    'zizmorcore/zizmor-action@v0.8.1':
-        ref: 'v0.8.1'
-        commit: 'sha1-45d7276c9ca790aabd705e31ca99c6185c3e76dd'
+    'zizmorcore/zizmor-action@v0.9.0':
+        ref: 'v0.9.0'
+        commit: 'sha1-bd12b495c90993a4301c73398142281a61499af3'
         owner_id: 210636713
         repo_id: 985558803
         uses:
-            - 'github/codeql-action@9b3254085494b55a0f7c4c2b3d2d52cc712ce370'
+            - 'github/codeql-action@33d7b85da1a04171e211befe2c739303b9a4c066'
