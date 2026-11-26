@@ -176,7 +176,9 @@ jobs:
           persist-credentials: false
 
       - name: Run YAMLLint
-        uses: frenck/action-yamllint@v1.5.0
+        run: |
+          yamllint --version
+          yamllint --format github .
 
   lint-prettier:
     name: Prettier
