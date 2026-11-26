@@ -96,7 +96,7 @@ jobs:
           persist-credentials: false
 
       - name: Run app linter
-        uses: frenck/action-app-linter@v2.21.2
+        uses: frenck/action-app-linter@v2.21.3
         with:
           path: ./${{ needs.information.outputs.target }}
 
