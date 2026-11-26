@@ -92,7 +92,7 @@ jobs:
 
       - name: Get app information
         id: info
-        uses: home-assistant/actions/helpers/info@9e9565e68f5a70d874202871f4c4064d23814235 # master
+        uses: home-assistant/actions/helpers/info@2026.11.0
         with:
           path: ./${{ steps.target.outputs.target }}
 

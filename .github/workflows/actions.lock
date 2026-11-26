@@ -11,13 +11,13 @@ workflows:
         - 'frenck/action-app-linter@v2.21.2'
         - 'frenck/action-yamllint@v1.5.0'
         - 'hadolint/hadolint-action@v3.5.0'
-        - 'home-assistant/actions@9e9565e68f5a70d874202871f4c4064d23814235'
+        - 'home-assistant/actions@2026.11.0'
         - 'home-assistant/builder@2026.09.0'
         - 'ludeeus/action-shellcheck@2.0.0'
         - 'zizmorcore/zizmor-action@v0.9.2'
     '.github/workflows/app-deploy.yaml':
         - 'actions/checkout@v7.0.1'
-        - 'home-assistant/actions@9e9565e68f5a70d874202871f4c4064d23814235'
+        - 'home-assistant/actions@2026.11.0'
         - 'home-assistant/builder@2026.09.0'
         - 'peter-evans/repository-dispatch@v4.0.1'
         - 'sigstore/cosign-installer@v4.1.4'
@@ -88,9 +88,9 @@ dependencies:
         repo_id: 131746084
         uses:
             - 'actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9'
-    'home-assistant/actions@9e9565e68f5a70d874202871f4c4064d23814235':
-        ref: 'master'
-        commit: 'sha1-9e9565e68f5a70d874202871f4c4064d23814235'
+    'home-assistant/actions@2026.11.0':
+        ref: '2026.11.0'
+        commit: 'sha1-07f46fd2e19967768b5fd3000f91f857452b767c'
         owner_id: 13844975
         repo_id: 173703505
     'home-assistant/builder@2026.09.0':
